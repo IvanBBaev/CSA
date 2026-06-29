@@ -1,5 +1,11 @@
 # CSA Practice Exam — interactive web app
 
+[![Deploy to GitHub Pages](https://github.com/IvanBBaev/CSA/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/IvanBBaev/CSA/actions/workflows/deploy-pages.yml)
+[![Live demo](https://img.shields.io/badge/live%20demo-online-brightgreen?logo=githubpages&logoColor=white)](https://ivanbbaev.github.io/CSA/)
+[![Questions](https://img.shields.io/badge/questions-408-blue)](site/questions.json)
+[![Build step](https://img.shields.io/badge/build-none-success)](#run)
+[![Made with vanilla JS](https://img.shields.io/badge/vanilla-HTML%20%C2%B7%20CSS%20%C2%B7%20JS-f7df1e?logo=javascript&logoColor=black)](site/app.js)
+
 A dynamic, browser-based quiz built from the `csa.pdf` SecExams question dump
 (ServiceNow **Certified System Administrator**).
 
