@@ -66,3 +66,19 @@ lettered options (A–J), and reads the correct set from the `Correct Answer:`
 block (unioned with any inline `(Correct Answer)` markers). It validates that
 options are contiguous, that the correct set is a subset of the options, and that
 "choose N" counts match.
+
+## Support
+
+This app is built and maintained in my own time. If it's useful to you, please
+consider supporting its continued development — every tip is genuinely appreciated.
+
+- **[GitHub Sponsors](https://github.com/sponsors/IvanBBaev)** — one-off or
+  recurring, with no platform fee taken out (the preferred option).
+- **[Ko-fi](https://ko-fi.com/ivanbbaev)** — quick one-off support; it also
+  accepts **PayPal**, so it's the fallback for anyone without a GitHub account.
+- **[Donate (Donatree)](https://donatr.ee/ivanbbaev/)** — a no-account donation
+  page (card, PayPal and more) for a one-off tip.
+
+[![Sponsor on GitHub](https://img.shields.io/badge/Sponsor-GitHub-ea4aaa?style=flat-square&logo=githubsponsors&logoColor=white)](https://github.com/sponsors/IvanBBaev)
+[![Support on Ko-fi](https://img.shields.io/badge/Ko--fi-Support-ff5e5b?style=flat-square&logo=kofi&logoColor=white)](https://ko-fi.com/ivanbbaev)
+[![Donate via Donatree](https://img.shields.io/badge/Donate-Donatree-22c55e?style=flat-square&logo=liberapay&logoColor=white)](https://donatr.ee/ivanbbaev/)
