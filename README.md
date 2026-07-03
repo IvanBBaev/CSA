@@ -1,10 +1,14 @@
 # CSA Practice Exam — interactive web app
 
-[![Deploy to GitHub Pages](https://github.com/IvanBBaev/CSA/actions/workflows/deploy-pages.yml/badge.svg)](https://github.com/IvanBBaev/CSA/actions/workflows/deploy-pages.yml)
-[![Live demo](https://img.shields.io/badge/live%20demo-online-brightgreen?logo=githubpages&logoColor=white)](https://ivanbbaev.github.io/CSA/)
-[![Questions](https://img.shields.io/badge/questions-408-blue)](site/questions.json)
-[![Build step](https://img.shields.io/badge/build-none-success)](#run)
-[![Made with vanilla JS](https://img.shields.io/badge/vanilla-HTML%20%C2%B7%20CSS%20%C2%B7%20JS-f7df1e?logo=javascript&logoColor=black)](site/app.js)
+<!-- badges:start -->
+[![license](https://img.shields.io/badge/license-MIT-blue?style=flat-square)](LICENSE)
+[![CI](https://img.shields.io/github/actions/workflow/status/IvanBBaev/CSA/deploy-pages.yml?branch=main&style=flat-square&logo=githubactions&logoColor=white&label=CI)](https://github.com/IvanBBaev/CSA/actions/workflows/deploy-pages.yml)
+[![last commit](https://img.shields.io/github/last-commit/IvanBBaev/CSA?style=flat-square&logo=git&logoColor=white&label=last-commit)](https://github.com/IvanBBaev/CSA/commits/main)
+[![live demo](https://img.shields.io/badge/live%20demo-online-brightgreen?style=flat-square&logo=githubpages&logoColor=white)](https://ivanbbaev.github.io/CSA/)
+[![questions](https://img.shields.io/badge/questions-408-blue?style=flat-square)](site/questions.json)
+[![build](https://img.shields.io/badge/build-none-success?style=flat-square)](#run)
+[![vanilla JS](https://img.shields.io/badge/vanilla-HTML%20%C2%B7%20CSS%20%C2%B7%20JS-f7df1e?style=flat-square&logo=javascript&logoColor=black)](site/app.js)
+<!-- badges:end -->
 
 A dynamic, browser-based quiz built from the `csa.pdf` SecExams question dump
 (ServiceNow **Certified System Administrator**).
