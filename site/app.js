@@ -144,7 +144,7 @@
     $("statBest").textContent = st.best != null ? st.best + "%" : "–";
     $("statWorst").textContent = st.worst != null ? st.worst + "%" : "–";
     $("statAttempts").textContent = st.attempts || 0;
-    renderHistory(st.history);
+    renderHistory(st.history, st.histAt);
     const sess = peekSession();
     if (sess) {
       const answered = Object.keys(sess.answers || {}).length;
@@ -156,23 +156,71 @@
     }
   }
 
-  // Small bar chart of recent exam scores (oldest → newest, left → right).
-  // Bars are colored by the same bands as the results verdict.
-  function renderHistory(history) {
+  // Line chart of the score of every attempt over time. A dot per attempt (colored
+  // by the same bands as the results verdict), a connecting line, a dashed 70% pass
+  // reference and a linear-regression trend line so the evolution of the success
+  // rate is visible at a glance. `times` (optional) holds the finish timestamp of
+  // each attempt so the x-axis can show real dates instead of attempt numbers.
+  function renderHistory(history, times) {
     const box = $("statHistory");
     if (!history || !history.length) { box.innerHTML = ""; box.classList.add("hidden"); return; }
-    const recent = history.slice(-24);
+    const data = history.slice(-30);
+    const t = (times || []).slice(-30);
+    const n = data.length;
+    const first = history.length - n; // count of older attempts not shown
+
+    const W = 340, H = 120, padL = 28, padR = 10, padT = 10, padB = 18;
+    const plotW = W - padL - padR, plotH = H - padT - padB;
+    const X = (i) => padL + (n === 1 ? plotW / 2 : (i / (n - 1)) * plotW);
+    const Y = (p) => padT + (1 - Math.max(0, Math.min(100, p)) / 100) * plotH;
     const band = (p) => (p >= 70 ? "ok" : p >= 55 ? "mid" : "low");
-    const bars = recent
+    const dateOf = (i) => (t[i] ? new Date(t[i]).toLocaleDateString() : `#${first + i + 1}`);
+
+    // horizontal gridlines + y labels at 0 / 50 / 100
+    const grid = [0, 50, 100]
+      .map((v) =>
+        `<line class="chart-grid" x1="${padL}" y1="${Y(v).toFixed(1)}" x2="${W - padR}" y2="${Y(v).toFixed(1)}" />` +
+        `<text class="chart-lbl" x="${padL - 5}" y="${(Y(v) + 3).toFixed(1)}" text-anchor="end">${v}</text>`)
+      .join("");
+
+    // 70% pass reference line
+    const passLine = `<line class="chart-pass" x1="${padL}" y1="${Y(70).toFixed(1)}" x2="${W - padR}" y2="${Y(70).toFixed(1)}" />`;
+
+    // score polyline + a dot per attempt
+    const pts = data.map((p, i) => `${X(i).toFixed(1)},${Y(p).toFixed(1)}`).join(" ");
+    const line = n > 1 ? `<polyline class="chart-line" points="${pts}" />` : "";
+    const dots = data
       .map((p, i) => {
-        const n = history.length - recent.length + i + 1;
-        const last = i === recent.length - 1 ? " hbar-last" : "";
-        return `<div class="hbar hbar-${band(p)}${last}" style="height:${Math.max(6, p)}%" title="Attempt ${n}: ${p}%"></div>`;
+        const last = i === n - 1;
+        return `<circle class="dot-${band(p)}${last ? " dot-last" : ""}" cx="${X(i).toFixed(1)}" cy="${Y(p).toFixed(1)}" r="${last ? 3.4 : 2.5}">` +
+          `<title>Attempt ${first + i + 1} · ${dateOf(i)}: ${p}%</title></circle>`;
       })
       .join("");
+
+    // linear-regression trend line (needs at least 2 points)
+    let trend = "", dir = "";
+    if (n > 1) {
+      let sx = 0, sy = 0, sxy = 0, sxx = 0;
+      data.forEach((p, i) => { sx += i; sy += p; sxy += i * p; sxx += i * i; });
+      const denom = n * sxx - sx * sx;
+      if (denom !== 0) {
+        const m = (n * sxy - sx * sy) / denom;
+        const b = (sy - m * sx) / n;
+        trend = `<line class="chart-trend" x1="${X(0).toFixed(1)}" y1="${Y(b).toFixed(1)}" x2="${X(n - 1).toFixed(1)}" y2="${Y(b + m * (n - 1)).toFixed(1)}" />`;
+        dir = m > 0.5 ? "▲ improving" : m < -0.5 ? "▼ declining" : "▬ steady";
+      }
+    }
+
+    const avg = Math.round(data.reduce((a, p) => a + p, 0) / n);
+    const xlabels =
+      `<text class="chart-lbl" x="${padL}" y="${H - 5}" text-anchor="start">${dateOf(0)}</text>` +
+      (n > 1 ? `<text class="chart-lbl" x="${W - padR}" y="${H - 5}" text-anchor="end">${dateOf(n - 1)}</text>` : "");
+
     box.innerHTML =
-      `<div class="history-head"><span>Score history</span><span>last ${recent.length}</span></div>` +
-      `<div class="hbars">${bars}</div>`;
+      `<div class="history-head"><span>Score over time</span><span>avg ${avg}%${dir ? " · " + dir : ""}</span></div>` +
+      `<svg class="chart" viewBox="0 0 ${W} ${H}" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Score per attempt over time">` +
+      grid + passLine + trend + line + dots + xlabels +
+      `</svg>`;
     box.classList.remove("hidden");
   }
 
@@ -459,6 +507,7 @@
     st.best = Math.max(st.best || 0, pct);
     st.worst = st.worst == null ? pct : Math.min(st.worst, pct);
     st.history = [...(st.history || []), pct].slice(-30);
+    st.histAt = [...(st.histAt || []), Date.now()].slice(-30);
     st.lastPct = pct;
     saveStats(st);
     clearSession();
