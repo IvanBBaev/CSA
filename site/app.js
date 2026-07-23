@@ -142,7 +142,9 @@
     $("statTotal").textContent = avail;
     $("qCount").textContent = avail;
     $("statBest").textContent = st.best != null ? st.best + "%" : "–";
+    $("statWorst").textContent = st.worst != null ? st.worst + "%" : "–";
     $("statAttempts").textContent = st.attempts || 0;
+    renderHistory(st.history);
     const sess = peekSession();
     if (sess) {
       const answered = Object.keys(sess.answers || {}).length;
@@ -152,6 +154,26 @@
       $("statResume").textContent = "–";
       $("resumeRow").classList.add("hidden");
     }
+  }
+
+  // Small bar chart of recent exam scores (oldest → newest, left → right).
+  // Bars are colored by the same bands as the results verdict.
+  function renderHistory(history) {
+    const box = $("statHistory");
+    if (!history || !history.length) { box.innerHTML = ""; box.classList.add("hidden"); return; }
+    const recent = history.slice(-24);
+    const band = (p) => (p >= 70 ? "ok" : p >= 55 ? "mid" : "low");
+    const bars = recent
+      .map((p, i) => {
+        const n = history.length - recent.length + i + 1;
+        const last = i === recent.length - 1 ? " hbar-last" : "";
+        return `<div class="hbar hbar-${band(p)}${last}" style="height:${Math.max(6, p)}%" title="Attempt ${n}: ${p}%"></div>`;
+      })
+      .join("");
+    box.innerHTML =
+      `<div class="history-head"><span>Score history</span><span>last ${recent.length}</span></div>` +
+      `<div class="hbars">${bars}</div>`;
+    box.classList.remove("hidden");
   }
 
   // ---------- build session ----------
@@ -435,6 +457,8 @@
     const st = loadStats();
     st.attempts = (st.attempts || 0) + 1;
     st.best = Math.max(st.best || 0, pct);
+    st.worst = st.worst == null ? pct : Math.min(st.worst, pct);
+    st.history = [...(st.history || []), pct].slice(-30);
     st.lastPct = pct;
     saveStats(st);
     clearSession();
