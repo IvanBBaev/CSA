@@ -591,8 +591,7 @@
     ],
     "correct": [
       "D"
-    ],
-    "image": "images/mapping-assist.jpg"
+    ]
   },
   {
     "id": 23,
@@ -3016,8 +3015,7 @@
     ],
     "correct": [
       "A"
-    ],
-    "image": "images/update-set-batch.jpg"
+    ]
   },
   {
     "id": 108,
@@ -8471,7 +8469,8 @@
     "correct": [
       "A",
       "B"
-    ]
+    ],
+    "image": "images/catalog-order-laptop.png"
   },
   {
     "id": 295,
