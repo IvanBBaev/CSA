@@ -45,6 +45,30 @@
   const sameSet = (a, b) =>
     a.length === b.length && a.every((x) => b.includes(x));
 
+  // Trailing "(Choose two.)" style hint on multi-answer questions.
+  const HINT_RE = /\s*\(\s*choose[^)]*\)\s*$/i;
+
+  // Question text as shown to the user: the answer-count hint is hidden unless
+  // the current session opted in via the "Show number of correct answers" box.
+  const displayText = (q) =>
+    S && S.showCounts ? q.text : q.text.replace(HINT_RE, "");
+
+  // Normalized stem used for duplicate detection: drop the answer-count hint,
+  // lowercase, and collapse whitespace so wording-identical items collapse.
+  const normKey = (q) =>
+    q.text.replace(HINT_RE, "").toLowerCase().replace(/\s+/g, " ").trim();
+
+  // Keep the first occurrence of each distinct question stem.
+  function dedupeQuestions(pool) {
+    const seen = new Set();
+    return pool.filter((q) => {
+      const k = normKey(q);
+      if (seen.has(k)) return false;
+      seen.add(k);
+      return true;
+    });
+  }
+
   function toast(msg) {
     const t = $("toast");
     t.textContent = msg;
@@ -65,7 +89,7 @@
     const slim = {
       mode: S.mode, order: S.order, answers: S.answers,
       flagged: [...S.flagged], revealed: [...S.revealed], idx: S.idx,
-      elapsed: S.elapsed, shuffleMap: S.shuffleMap,
+      elapsed: S.elapsed, shuffleMap: S.shuffleMap, showCounts: S.showCounts,
     };
     localStorage.setItem(LS.session, JSON.stringify(slim));
   };
@@ -102,10 +126,21 @@
   wireSeg("modeSeg", "mode");
   wireSeg("countSeg", "count");
 
+  // Questions available to start with, given the current type + dedupe filters.
+  function availableCount() {
+    const types = [];
+    if ($("incSingle").checked) types.push("single");
+    if ($("incMulti").checked) types.push("multi");
+    let pool = BANK.filter((q) => types.includes(q.type));
+    if ($("dedupe").checked) pool = dedupeQuestions(pool);
+    return pool.length;
+  }
+
   function refreshStartStats() {
     const st = loadStats();
-    $("statTotal").textContent = BANK.length;
-    $("qCount").textContent = BANK.length;
+    const avail = availableCount();
+    $("statTotal").textContent = avail;
+    $("qCount").textContent = avail;
     $("statBest").textContent = st.best != null ? st.best + "%" : "–";
     $("statAttempts").textContent = st.attempts || 0;
     const sess = peekSession();
@@ -126,6 +161,8 @@
     if ($("incMulti").checked) types.push("multi");
     let pool = BANK.filter((q) => types.includes(q.type));
     if (!pool.length) { toast("Select at least one question type"); return null; }
+
+    if ($("dedupe").checked) pool = dedupeQuestions(pool);
 
     if ($("shuffleQ").checked) pool = shuffle(pool);
     if (settings.count !== "all") {
@@ -150,7 +187,7 @@
         mode: restore.mode, order: restore.order, answers: restore.answers || {},
         flagged: new Set(restore.flagged || []), idx: restore.idx || 0,
         elapsed: restore.elapsed || 0, shuffleMap: restore.shuffleMap || {},
-        finished: false,
+        finished: false, showCounts: !!restore.showCounts,
         revealed: new Set(restore.revealed || Object.keys(restore.answers || {}).map(Number)),
       };
     } else {
@@ -159,7 +196,7 @@
       S = {
         mode: settings.mode, order: built.order, answers: {},
         flagged: new Set(), idx: 0, elapsed: 0, shuffleMap: built.shuffleMap,
-        finished: false, revealed: new Set(),
+        finished: false, revealed: new Set(), showCounts: $("showCounts").checked,
       };
     }
     show("quiz");
@@ -208,7 +245,8 @@
     badges.appendChild(el("span", `badge ${q.type}`, typeLabel));
     if (S.flagged.has(q.id)) badges.appendChild(el("span", "badge flag", "⚑ Flagged"));
 
-    $("qText").innerHTML = escapeHtml(q.text);
+    $("qText").innerHTML = escapeHtml(displayText(q));
+    renderImage(q);
 
     renderOptions(q);
     renderFeedback(q);
@@ -222,6 +260,15 @@
 
     if (!$("gridPanel").classList.contains("hidden")) renderGrid();
     window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // Optional illustration attached to a question (ServiceNow UI screenshot).
+  function renderImage(q) {
+    const fig = $("qImage");
+    if (!q.image) { fig.innerHTML = ""; fig.classList.add("hidden"); return; }
+    const src = q.image.split("/").map(encodeURIComponent).join("/");
+    fig.innerHTML = `<img src="${src}" alt="Illustration for question #${q.id}" loading="lazy" />`;
+    fig.classList.remove("hidden");
   }
 
   function renderOptions(q) {
@@ -297,7 +344,8 @@
         fb.className = "feedback";
         fb.innerHTML = "";
         const need = q.correct.length;
-        const btn = el("button", "btn-primary", `Check answer (${need} expected)`);
+        const label = S.showCounts ? `Check answer (${need} expected)` : "Check answer";
+        const btn = el("button", "btn-primary", label);
         btn.style.width = "auto";
         btn.onclick = () => { S.revealed.add(q.id); renderOptions(q); renderFeedback(q); saveSession(); };
         fb.appendChild(btn);
@@ -442,7 +490,7 @@
 
   function reviewItem(q) {
     const wrap = el("div", "review-item");
-    wrap.appendChild(el("div", "review-q", `#${q.id} · ${escapeHtml(q.text)}`));
+    wrap.appendChild(el("div", "review-q", `#${q.id} · ${escapeHtml(displayText(q))}`));
     const sel = S.answers[q.id] || [];
     const correctTxt = q.correct
       .map((l) => `${l}) ${escapeHtml((q.options.find((o) => o.letter === l) || {}).text || "")}`)
@@ -466,11 +514,17 @@
     S = {
       mode: S.mode, order: shuffle(wrongs), answers: {}, flagged: new Set(),
       idx: 0, elapsed: 0, shuffleMap: {}, finished: false, revealed: new Set(),
+      showCounts: S.showCounts,
     };
     show("quiz"); startTimer(); renderQuestion(); saveSession();
   };
   $("reviewBtn").onclick = () => $("reviewList").scrollIntoView({ behavior: "smooth" });
   $("newBtn").onclick = () => { clearSession(); refreshStartStats(); show("start"); };
+
+  // Keep the top question count in sync with the type + dedupe filters.
+  ["dedupe", "incSingle", "incMulti"].forEach((id) =>
+    $(id).addEventListener("change", refreshStartStats)
+  );
 
   // ---------- start buttons ----------
   $("startBtn").onclick = () => { clearSession(); startSession(null); };

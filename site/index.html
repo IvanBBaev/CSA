@@ -63,6 +63,8 @@
         <label class="title">Options</label>
         <div class="check-row"><input type="checkbox" id="shuffleQ" checked /><label for="shuffleQ">Shuffle question order</label></div>
         <div class="check-row"><input type="checkbox" id="shuffleO" checked /><label for="shuffleO">Shuffle answer options</label></div>
+        <div class="check-row"><input type="checkbox" id="dedupe" /><label for="dedupe">Remove duplicate questions</label></div>
+        <div class="check-row"><input type="checkbox" id="showCounts" /><label for="showCounts">Show number of correct answers (e.g. &ldquo;choose two&rdquo;)</label></div>
       </div>
 
       <button type="button" class="btn-primary" id="startBtn">Start ▶</button>
@@ -85,6 +87,7 @@
       <div class="card qcard">
         <div class="badges" id="qBadges"></div>
         <p class="qtext" id="qText"></p>
+        <figure class="qimage hidden" id="qImage"></figure>
         <div class="options" id="qOptions"></div>
         <div id="feedback" class="feedback hidden"></div>
       </div>

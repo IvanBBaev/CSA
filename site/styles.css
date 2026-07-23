@@ -144,6 +144,15 @@ a { color: var(--blue); }
 .badge.flag { color: var(--amber); border-color: var(--amber); background: var(--amber-soft); }
 .qtext { font-size: 18px; font-weight: 600; margin: 0 0 18px; }
 
+/* Optional UI screenshot attached to a question. Kept on a light backdrop so
+   white ServiceNow screenshots stay legible in the dark theme. */
+.qimage { margin: 0 0 18px; }
+.qimage img {
+  display: block; max-width: 100%; height: auto;
+  border: 1px solid var(--border); border-radius: 10px;
+  background: #fff; padding: 6px;
+}
+
 .options { display: flex; flex-direction: column; gap: 10px; }
 .opt {
   display: flex; align-items: flex-start; gap: 12px;

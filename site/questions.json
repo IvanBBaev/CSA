@@ -591,7 +591,8 @@
     ],
     "correct": [
       "D"
-    ]
+    ],
+    "image": "images/mapping-assist.jpg"
   },
   {
     "id": 23,
@@ -3015,7 +3016,8 @@
     ],
     "correct": [
       "A"
-    ]
+    ],
+    "image": "images/update-set-batch.jpg"
   },
   {
     "id": 108,
@@ -3458,7 +3460,8 @@
     ],
     "correct": [
       "C"
-    ]
+    ],
+    "image": "images/connect-chat-banner.png"
   },
   {
     "id": 123,
@@ -4289,7 +4292,8 @@
     ],
     "correct": [
       "B"
-    ]
+    ],
+    "image": "images/form-context-menu.png"
   },
   {
     "id": 149,
@@ -6945,7 +6949,8 @@
     ],
     "correct": [
       "C"
-    ]
+    ],
+    "image": "images/reference-preview-icon.png"
   },
   {
     "id": 242,
@@ -8204,7 +8209,8 @@
     ],
     "correct": [
       "A"
-    ]
+    ],
+    "image": "images/filter-breadcrumb.png"
   },
   {
     "id": 286,
@@ -8625,7 +8631,8 @@
     ],
     "correct": [
       "B"
-    ]
+    ],
+    "image": "images/update-set-batch.jpg"
   },
   {
     "id": 301,
